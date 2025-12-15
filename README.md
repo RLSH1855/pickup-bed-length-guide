@@ -1,1 +1,0 @@
-# pickup-bed-length-guide
