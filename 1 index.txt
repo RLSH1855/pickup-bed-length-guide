@@ -1,0 +1,95 @@
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <title>Definitive Pickup Truck Bed Length Guide</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <link rel="stylesheet" href="styles.css" />
+</head>
+<body>
+
+<div class="container">
+  <h1>Pickup Truck Bed Length Search</h1>
+  <p class="subtitle">
+    OEM-verified pickup bed dimensions by year, make, model, and cab size.
+  </p>
+
+  <div class="filters">
+    <select id="year"><option value="">Year</option></select>
+    <select id="make"><option value="">Make</option></select>
+    <select id="model"><option value="">Model</option></select>
+    <select id="cab"><option value="">Cab Size</option></select>
+  </div>
+
+  <div class="table-wrap">
+    <table>
+      <thead>
+        <tr>
+          <th>Year</th>
+          <th>Make</th>
+          <th>Model</th>
+          <th>Cab</th>
+          <th>Short Bed</th>
+          <th>Standard Bed</th>
+          <th>Long Bed</th>
+        </tr>
+      </thead>
+      <tbody id="tableBody"></tbody>
+    </table>
+  </div>
+</div>
+
+<script>
+fetch("data.csv")
+  .then(r => r.text())
+  .then(text => {
+    const rows = text.trim().split("\n").slice(1).map(r => r.split(","));
+    const body = document.getElementById("tableBody");
+
+    const filters = {
+      year: document.getElementById("year"),
+      make: document.getElementById("make"),
+      model: document.getElementById("model"),
+      cab: document.getElementById("cab")
+    };
+
+    function populate(index, select) {
+      [...new Set(rows.map(r => r[index]).filter(Boolean))]
+        .sort()
+        .forEach(v => select.innerHTML += `<option>${v}</option>`);
+    }
+
+    populate(0, filters.year);
+    populate(1, filters.make);
+    populate(2, filters.model);
+    populate(3, filters.cab);
+
+    function render() {
+      body.innerHTML = "";
+      rows.filter(r =>
+        (!filters.year.value || r[0] === filters.year.value) &&
+        (!filters.make.value || r[1] === filters.make.value) &&
+        (!filters.model.value || r[2] === filters.model.value) &&
+        (!filters.cab.value || r[3] === filters.cab.value)
+      ).forEach(r => {
+        body.innerHTML += `
+          <tr>
+            <td>${r[0]}</td>
+            <td>${r[1]}</td>
+            <td>${r[2]}</td>
+            <td>${r[3]}</td>
+            <td>${r[4] || "-"}</td>
+            <td>${r[5] || "-"}</td>
+            <td>${r[6] || "-"}</td>
+          </tr>`;
+      });
+    }
+
+    Object.values(filters).forEach(f => f.addEventListener("change", render));
+    render();
+  });
+</script>
+
+</body>
+</html>
